@@ -16,7 +16,7 @@ Production-ready monitoring stack for Keycloak with Prometheus metrics and Grafa
 
 ## Quick Start
 
-```bash
+```sh
 # Clone the repository
 git clone https://github.com/ML-ZoneReaper/keycloak-compose.git
 cd keycloak-compose
@@ -84,7 +84,8 @@ Environment variables in `.env`:
 ## Management Commands
 
 ### Service Control
-```bash
+
+```sh
 # Start services
 docker compose up -d
 
@@ -102,7 +103,8 @@ docker compose ps
 ```
 
 ### Monitoring & Logs
-```bash
+
+```sh
 # Follow all logs
 docker compose logs -f
 
@@ -116,7 +118,8 @@ docker stats
 ```
 
 ### Data Management
-```bash
+
+```sh
 # Remove all containers, volumes, and images
 docker compose down -v --rmi all
 
@@ -162,7 +165,8 @@ Access the pre-configured Keycloak dashboard in Grafana after OAuth login:
 ### Services Won't Start
 
 **Check port conflicts:**
-```bash
+
+```sh
 # Verify ports 3000, 8080, 9090 are available
 lsof -i :3000
 lsof -i :8080
@@ -170,7 +174,8 @@ lsof -i :9090
 ```
 
 **Inspect service health:**
-```bash
+
+```sh
 # Check container status
 docker compose ps
 
@@ -179,7 +184,8 @@ docker compose logs --tail=50 keycloak
 ```
 
 **Verify no conflicting containers:**
-```bash
+
+```sh
 docker ps -a | grep -E "keycloak|grafana|prometheus|postgres"
 ```
 
@@ -193,7 +199,8 @@ docker ps -a | grep -E "keycloak|grafana|prometheus|postgres"
 | Metrics not appearing | Check Prometheus targets: http://localhost:9090/targets |
 
 ### Health Checks
-```bash
+
+```sh
 # PostgreSQL
 docker compose exec postgres pg_isready -U keycloak
 
