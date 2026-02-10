@@ -1,111 +1,67 @@
-# Keycloak with PostgreSQL, Prometheus & Grafana
+# Keycloak Observability Stack
 
-Containerized solution for running Keycloak with PostgreSQL, monitoring via Prometheus and Grafana.
+Production-ready monitoring stack for Keycloak with Prometheus metrics and Grafana dashboards, featuring OAuth2/OIDC authentication.
 
-## 🚀 Quick Start
+## Architecture
 
-1. **Prerequisites**:
-   - [Docker](https://docs.docker.com/get-docker/) (v20.10.7+)
-   - [Docker Compose](https://docs.docker.com/compose/install/) (v2.0.0+)
+- **Keycloak** - Identity and access management with metrics enabled
+- **Prometheus** - Time-series metrics collection (15s scrape interval, 30d retention)
+- **Grafana** - Metrics visualization with OAuth authentication
+- **PostgreSQL** - Keycloak backend (ephemeral storage)
 
-2. Clone repository:
-   ```bash
-   git clone https://github.com/eabykov/keycloak-compose.git
-   cd keycloak-compose
-   ```
+## Quick Start
 
-3. Start the system:
-   ```bash
-   docker compose up -d
-   ```
-
-4. Access services:
-   - Keycloak: http://localhost:8080
-   - Grafana: http://localhost:3000
-   - Prometheus: http://localhost:9090
-
-## ⚙️ Configuration
-
-Configure using the `.env` file. Key parameters:
-
-| Variable                 | Default       | Description                     |
-|--------------------------|---------------|---------------------------------|
-| `POSTGRES_DB`            | keycloak      | PostgreSQL database name        |
-| `POSTGRES_USER`          | keycloak      | PostgreSQL user                 |
-| `POSTGRES_PASSWORD`      | password      | PostgreSQL password             |
-| `KEYCLOAK_ADMIN`         | admin         | Keycloak admin username         |
-| `KEYCLOAK_ADMIN_PASSWORD`| keycloak      | Keycloak admin password         |
-| `GRAFANA_ADMIN_PASSWORD` | grafana       | Grafana admin password          |
-
-Modify `.env` before first launch.
-
-## 🔌 Service Access
-
-| Service        | URL                         | Credentials               |
-|----------------|-----------------------------|---------------------------|
-| **Keycloak**   | http://localhost:8080       | `admin` / `keycloak`      |
-| **Grafana**    | http://localhost:3000       | `admin` / `grafana`       |
-| **Prometheus** | http://localhost:9090       | No authentication         |
-
-## 📊 Monitoring
-
-Automatically configured:
-- Prometheus scrapes Keycloak metrics every 15s
-- Grafana with pre-configured [Keycloak Dashboard](https://grafana.com/grafana/dashboards/10441)
-- Ready-to-use dashboards for:
-  - JVM metrics
-  - Database queries
-  - Active sessions
-  - Authentication errors
-
-## 🛠 Management
-
-### Core Commands
-| Command                                  | Description                                     |
-|------------------------------------------|-------------------------------------------------|
-| `docker compose up -d`                   | Start all services in background                |
-| `docker compose down`                    | Stop services (add `-v` to remove volumes)      |
-| `docker compose logs -f`                 | Follow service logs in real-time                |
-| `docker compose restart keycloak`        | Restart Keycloak container                      |
-
-### Resource Monitoring
 ```bash
-# Live container resource usage
-docker stats
+# Start the stack
+docker compose up -d
 
-# Check service status
+# Verify services
 docker compose ps
 ```
 
-### Keycloak Administration
-After launch:
-1. Access Keycloak Admin Console
-2. Create new realm
-3. Configure clients and users
+## Access Points
 
-## 🧹 Cleanup
-Remove all containers, images, and volumes:
-```bash
-docker compose down -v --rmi all
-docker system prune -a -f --volumes
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| Grafana | http://localhost:3000 | OAuth via Keycloak |
+| Keycloak | http://localhost:8080 | admin / keycloak |
+| Prometheus | http://localhost:9090 | - |
+
+## Key Features
+
+- **Pre-configured OAuth** - Grafana authenticates via Keycloak OIDC
+- **JVM Monitoring** - Heap memory, GC metrics, thread counts, class loading
+- **Connection Pooling** - Agroal datasource metrics (idle, active, leak detection)
+- **Auto-provisioned** - Dashboard and datasource provisioning on startup
+- **Structured Logging** - JSON logs with rotation (10MB × 3 files)
+
+## Metrics Coverage
+
+```yaml
+JVM Metrics:
+  - Memory: heap usage, committed, max
+  - GC: collection count/time by collector
+  - Threads: live, daemon, peak counts
+  - Classes: loaded, unloaded counts
+
+Connection Pool:
+  - Active/idle/awaiting connections
+  - Acquisition time (avg, max, total)
+  - Creation time, leak detection
+  - Flush and reap operations
 ```
 
-> **Warning**  
-> These commands permanently destroy all data!
+## Security Notes
 
-## ⁉️ Troubleshooting
-If services fail to start:
-1. Check port conflicts (8080, 9090, 3000)
-2. Inspect logs:
-   ```bash
-   docker compose logs keycloak
-   ```
-3. Verify no conflicting containers:
-   ```bash
-   docker ps -a
-   ```
+- Keycloak runs in dev mode (`start-dev`)
+- PostgreSQL uses tmpfs (ephemeral storage)
+- SSL verification disabled for OAuth (local development)
+- Default credentials should be changed for production
 
-## 📚 Resources
-- [Keycloak Documentation](https://www.keycloak.org/documentation)
-- [Prometheus Querying](https://prometheus.io/docs/prometheus/latest/querying/basics/)
-- [Grafana Keycloak Dashboard](https://grafana.com/grafana/dashboards/10441)
+## Monitoring
+
+Access the Keycloak dashboard in Grafana after OAuth login. Pre-configured panels include:
+- System resources (CPU, load average)
+- Memory utilization trends
+- Connection pool health
+- GC behavior analysis
